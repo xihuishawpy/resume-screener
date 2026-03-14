@@ -2,15 +2,16 @@ import { NextResponse } from "next/server";
 import { supabase } from "@/lib/supabase";
 import { openai, MODEL_NAME } from "@/lib/openai";
 import { resumeParsePrompt } from "@/lib/prompts";
-import pdfParse from "pdf-parse";
-import mammoth from "mammoth";
+import { extractText as extractPdfText } from "unpdf";
 
 async function extractText(buffer: Buffer, filename: string): Promise<string> {
   const ext = filename.split(".").pop()?.toLowerCase();
   if (ext === "pdf") {
-    const data = await pdfParse(buffer);
-    return data.text;
+    const { text } = await extractPdfText(new Uint8Array(buffer), { mergePages: true });
+    return text as string;
   } else if (ext === "docx" || ext === "doc") {
+    // eslint-disable-next-line @typescript-eslint/no-require-imports
+    const mammoth = require("mammoth");
     const result = await mammoth.extractRawText({ buffer });
     return result.value;
   } else {
