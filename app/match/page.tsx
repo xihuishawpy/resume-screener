@@ -362,7 +362,9 @@ export default function MatchPage() {
       <div className="flex flex-wrap items-center gap-3">
         <Select value={selectedJobId} onValueChange={(v) => v && setSelectedJobId(v)}>
           <SelectTrigger className="w-64">
-            <SelectValue placeholder="选择岗位" />
+            <SelectValue placeholder="选择岗位">
+              {jobs.find(j => String(j.id) === selectedJobId)?.title || "选择岗位"}
+            </SelectValue>
           </SelectTrigger>
           <SelectContent>
             {jobs.map((job) => (
