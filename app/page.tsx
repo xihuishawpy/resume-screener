@@ -23,13 +23,6 @@ import {
   DialogFooter,
   DialogClose,
 } from "@/components/ui/dialog";
-import {
-  Select,
-  SelectTrigger,
-  SelectValue,
-  SelectContent,
-  SelectItem,
-} from "@/components/ui/select";
 import { toast } from "sonner";
 import type { Job } from "@/lib/types";
 import { PlusIcon, TrashIcon, PencilIcon, SparklesIcon, ChevronDownIcon, ChevronUpIcon, Loader2Icon } from "lucide-react";
@@ -286,18 +279,15 @@ export default function JobsPage() {
               <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-1.5">
                   <Label>学历要求</Label>
-                  <Select value={education} onValueChange={(v) => v && setEducation(v)}>
-                    <SelectTrigger className="w-full">
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {educationOptions.map((opt) => (
-                        <SelectItem key={opt} value={opt}>
-                          {opt}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
+                  <select
+                    className="flex h-8 w-full rounded-lg border border-input bg-transparent px-2.5 text-sm outline-none focus:border-ring focus:ring-3 focus:ring-ring/50"
+                    value={education}
+                    onChange={(e) => setEducation(e.target.value)}
+                  >
+                    {educationOptions.map((opt) => (
+                      <option key={opt} value={opt}>{opt}</option>
+                    ))}
+                  </select>
                 </div>
                 <div className="space-y-1.5">
                   <Label>经验要求（年）</Label>
@@ -313,20 +303,15 @@ export default function JobsPage() {
               </div>
               <div className="space-y-1.5">
                 <Label>筛选模式</Label>
-                <Select value={filterMode} onValueChange={(v) => v && setFilterMode(v)}>
-                  <SelectTrigger className="w-full">
-                    <SelectValue placeholder="选择筛选模式">
-                      {filterModeOptions.find(o => o.value === filterMode)?.label || filterMode}
-                    </SelectValue>
-                  </SelectTrigger>
-                  <SelectContent>
-                    {filterModeOptions.map((opt) => (
-                      <SelectItem key={opt.value} value={opt.value}>
-                        {opt.label}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
+                <select
+                  className="flex h-8 w-full rounded-lg border border-input bg-transparent px-2.5 text-sm outline-none focus:border-ring focus:ring-3 focus:ring-ring/50"
+                  value={filterMode}
+                  onChange={(e) => setFilterMode(e.target.value)}
+                >
+                  {filterModeOptions.map((opt) => (
+                    <option key={opt.value} value={opt.value}>{opt.label}</option>
+                  ))}
+                </select>
               </div>
             </div>
 

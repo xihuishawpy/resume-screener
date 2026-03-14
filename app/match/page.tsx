@@ -19,13 +19,6 @@ import {
   DialogClose,
   DialogFooter,
 } from "@/components/ui/dialog";
-import {
-  Select,
-  SelectTrigger,
-  SelectValue,
-  SelectContent,
-  SelectItem,
-} from "@/components/ui/select";
 import { toast } from "sonner";
 import type {
   Job,
@@ -360,20 +353,18 @@ export default function MatchPage() {
 
       {/* Controls */}
       <div className="flex flex-wrap items-center gap-3">
-        <Select value={selectedJobId} onValueChange={(v) => v && setSelectedJobId(v)}>
-          <SelectTrigger className="w-64">
-            <SelectValue placeholder="选择岗位">
-              {jobs.find(j => String(j.id) === selectedJobId)?.title || "选择岗位"}
-            </SelectValue>
-          </SelectTrigger>
-          <SelectContent>
-            {jobs.map((job) => (
-              <SelectItem key={job.id} value={String(job.id)}>
-                {job.title}
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
+        <select
+          className="h-8 w-64 rounded-lg border border-input bg-transparent px-2.5 text-sm outline-none focus:border-ring focus:ring-3 focus:ring-ring/50"
+          value={selectedJobId}
+          onChange={(e) => setSelectedJobId(e.target.value)}
+        >
+          <option value="">选择岗位...</option>
+          {jobs.map((job) => (
+            <option key={job.id} value={String(job.id)}>
+              {job.title}
+            </option>
+          ))}
+        </select>
         <Button
           onClick={handleMatch}
           disabled={!selectedJobId || matching}
@@ -841,21 +832,17 @@ function MatchResultCard({
             </Button>
 
             {/* Status select */}
-            <Select
+            <select
+              className="h-7 rounded-md border border-input bg-transparent px-2 text-xs outline-none focus:border-ring focus:ring-3 focus:ring-ring/50"
               value={status}
-              onValueChange={(val) => val && onFeedback({ status: val })}
+              onChange={(e) => onFeedback({ status: e.target.value })}
             >
-              <SelectTrigger size="sm" className="w-24">
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                {statusOptions.map((opt) => (
-                  <SelectItem key={opt.value} value={opt.value}>
-                    {opt.label}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
+              {statusOptions.map((opt) => (
+                <option key={opt.value} value={opt.value}>
+                  {opt.label}
+                </option>
+              ))}
+            </select>
           </div>
         </div>
       </CardContent>
