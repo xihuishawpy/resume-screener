@@ -2,5 +2,13 @@
   command = "npm run build"
   publish = ".next"
 
+[functions]
+  external_node_modules = ["mammoth"]
+  node_bundler = "esbuild"
+
 [[plugins]]
   package = "@netlify/plugin-nextjs"
+
+# Extend timeout for all serverless functions (max 26s on free plan)
+[functions."*"]
+  timeout = 26

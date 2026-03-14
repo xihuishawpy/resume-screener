@@ -13,11 +13,13 @@ export async function POST(req: Request) {
   if (!resume) return NextResponse.json({ error: "简历不存在" }, { status: 404 });
 
   try {
+    // Compact resume data to reduce tokens and speed up response
+    const resumeData = JSON.stringify(resume.parsed_data);
     const response = await openai.chat.completions.create({
       model: MODEL_NAME,
       messages: [
         { role: "system", content: "你是一位资深面试官，只返回JSON格式数据。" },
-        { role: "user", content: interviewPrompt(job, JSON.stringify(resume.parsed_data, null, 2)) },
+        { role: "user", content: interviewPrompt(job, resumeData) },
       ],
       temperature: 0.3,
       response_format: { type: "json_object" },
