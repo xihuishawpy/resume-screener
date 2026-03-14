@@ -207,7 +207,7 @@ export default function JobsPage() {
             <PlusIcon className="size-4" />
             新建岗位
           </DialogTrigger>
-          <DialogContent className="sm:max-w-lg">
+          <DialogContent className="sm:max-w-lg max-h-[90vh] overflow-y-auto">
             <DialogHeader>
               <DialogTitle>{editingJob ? "编辑岗位" : "新建岗位"}</DialogTitle>
               <DialogDescription>
@@ -315,7 +315,9 @@ export default function JobsPage() {
                 <Label>筛选模式</Label>
                 <Select value={filterMode} onValueChange={(v) => v && setFilterMode(v)}>
                   <SelectTrigger className="w-full">
-                    <SelectValue />
+                    <SelectValue placeholder="选择筛选模式">
+                      {filterModeOptions.find(o => o.value === filterMode)?.label || filterMode}
+                    </SelectValue>
                   </SelectTrigger>
                   <SelectContent>
                     {filterModeOptions.map((opt) => (
