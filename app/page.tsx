@@ -32,7 +32,7 @@ import {
 } from "@/components/ui/select";
 import { toast } from "sonner";
 import type { Job } from "@/lib/types";
-import { PlusIcon, TrashIcon, SparklesIcon, ChevronDownIcon, ChevronUpIcon, Loader2Icon } from "lucide-react";
+import { PlusIcon, TrashIcon, PencilIcon, SparklesIcon, ChevronDownIcon, ChevronUpIcon, Loader2Icon } from "lucide-react";
 
 const educationOptions = ["不限", "大专", "本科", "硕士", "博士"];
 const filterModeOptions = [
@@ -45,6 +45,7 @@ export default function JobsPage() {
   const [loading, setLoading] = useState(true);
   const [dialogOpen, setDialogOpen] = useState(false);
   const [submitting, setSubmitting] = useState(false);
+  const [editingJob, setEditingJob] = useState<Job | null>(null);
 
   // Form state
   const [title, setTitle] = useState("");
@@ -87,32 +88,57 @@ export default function JobsPage() {
     setJdExpanded(false);
   };
 
+  const openEditDialog = (job: Job) => {
+    setEditingJob(job);
+    setTitle(job.title);
+    setDescription(job.description || "");
+    setRequiredSkills(job.required_skills || "");
+    setEducation(job.education || "不限");
+    setExperienceYears(job.experience_years || 0);
+    setFilterMode(job.filter_mode || "strict");
+    setJdText("");
+    setJdExpanded(false);
+    setDialogOpen(true);
+  };
+
   const handleSubmit = async () => {
     if (!title.trim()) {
       toast.error("请输入岗位名称");
       return;
     }
     setSubmitting(true);
+    const payload = {
+      title: title.trim(),
+      description: description.trim() || null,
+      required_skills: requiredSkills.trim() || null,
+      education,
+      experience_years: experienceYears,
+      filter_mode: filterMode,
+    };
     try {
-      const res = await fetch("/api/jobs", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          title: title.trim(),
-          description: description.trim() || null,
-          required_skills: requiredSkills.trim() || null,
-          education,
-          experience_years: experienceYears,
-          filter_mode: filterMode,
-        }),
-      });
-      if (!res.ok) throw new Error("创建失败");
-      toast.success("岗位创建成功");
+      if (editingJob) {
+        const res = await fetch(`/api/jobs/${editingJob.id}`, {
+          method: "PUT",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(payload),
+        });
+        if (!res.ok) throw new Error("更新失败");
+        toast.success("岗位更新成功");
+      } else {
+        const res = await fetch("/api/jobs", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(payload),
+        });
+        if (!res.ok) throw new Error("创建失败");
+        toast.success("岗位创建成功");
+      }
       resetForm();
+      setEditingJob(null);
       setDialogOpen(false);
       fetchJobs();
     } catch {
-      toast.error("创建岗位失败");
+      toast.error(editingJob ? "更新岗位失败" : "创建岗位失败");
     } finally {
       setSubmitting(false);
     }
@@ -166,12 +192,13 @@ export default function JobsPage() {
             创建和管理招聘岗位，配置筛选条件
           </p>
         </div>
-        <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
+        <Dialog open={dialogOpen} onOpenChange={(open) => { setDialogOpen(open); if (!open) { setEditingJob(null); resetForm(); } }}>
           <DialogTrigger
             render={
               <Button
                 size="lg"
                 onClick={() => {
+                  setEditingJob(null);
                   resetForm();
                 }}
               />
@@ -182,9 +209,9 @@ export default function JobsPage() {
           </DialogTrigger>
           <DialogContent className="sm:max-w-lg">
             <DialogHeader>
-              <DialogTitle>新建岗位</DialogTitle>
+              <DialogTitle>{editingJob ? "编辑岗位" : "新建岗位"}</DialogTitle>
               <DialogDescription>
-                填写岗位信息，或粘贴JD自动解析
+                {editingJob ? "修改岗位信息" : "填写岗位信息，或粘贴JD自动解析"}
               </DialogDescription>
             </DialogHeader>
 
@@ -309,7 +336,7 @@ export default function JobsPage() {
                 {submitting && (
                   <Loader2Icon className="size-4 animate-spin" />
                 )}
-                {submitting ? "创建中..." : "创建岗位"}
+                {submitting ? (editingJob ? "保存中..." : "创建中...") : (editingJob ? "保存修改" : "创建岗位")}
               </Button>
             </DialogFooter>
           </DialogContent>
@@ -333,13 +360,22 @@ export default function JobsPage() {
               <CardHeader>
                 <CardTitle>{job.title}</CardTitle>
                 <CardAction>
-                  <Button
-                    variant="ghost"
-                    size="icon-sm"
-                    onClick={() => handleDelete(job.id)}
-                  >
-                    <TrashIcon className="size-4 text-destructive" />
-                  </Button>
+                  <div className="flex gap-1">
+                    <Button
+                      variant="ghost"
+                      size="icon-sm"
+                      onClick={() => openEditDialog(job)}
+                    >
+                      <PencilIcon className="size-4 text-muted-foreground" />
+                    </Button>
+                    <Button
+                      variant="ghost"
+                      size="icon-sm"
+                      onClick={() => handleDelete(job.id)}
+                    >
+                      <TrashIcon className="size-4 text-destructive" />
+                    </Button>
+                  </div>
                 </CardAction>
               </CardHeader>
               <CardContent className="space-y-3">
