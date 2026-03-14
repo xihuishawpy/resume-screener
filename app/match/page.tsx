@@ -412,7 +412,7 @@ export default function MatchPage() {
 
       {/* Credibility Modal */}
       <Dialog open={credibilityOpen} onOpenChange={setCredibilityOpen}>
-        <DialogContent className="sm:max-w-md">
+        <DialogContent className="sm:max-w-md max-h-[85vh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle>可信度检测</DialogTitle>
             <DialogDescription>
